@@ -7,10 +7,9 @@ import 'package:razvezi/cookie.dart';
 
 // driver ima dva dugmeta
 // admin ima otkazi porudzbinu, mozda zovi vozaca?
-// status history 
+// status history
 
-
-Widget createButton(String text, void Function() func){
+Widget createButton(String text, void Function() func) {
   return ElevatedButton(
     onPressed: func,
     style: ElevatedButton.styleFrom(
@@ -21,30 +20,24 @@ Widget createButton(String text, void Function() func){
   );
 }
 
-Widget getButtonsBasedOnRole(routeId, VoidCallback onRefresh){
+Widget getButtonsBasedOnRole(routeId, VoidCallback onRefresh) {
   switch (Session.role) {
     case "driver":
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          createButton("Preuzeta roba", 
-          () async {
+          createButton("Preuzeta roba", () async {
             bool success = await changeRouteStatus(routeId, 'take_product');
-
-            if (success){
+            if (success) {
               onRefresh();
-            }else{
-            }
+            } else {}
           }),
           const SizedBox(width: 10),
-          createButton("Zavrseno", 
-          () async { 
+          createButton("Zavrseno", () async {
             bool success = await changeRouteStatus(routeId, 'finish');
-            if (success){
+            if (success) {
               onRefresh();
-            }else{
-            }
-
+            } else {}
           }),
         ],
       );
@@ -52,16 +45,15 @@ Widget getButtonsBasedOnRole(routeId, VoidCallback onRefresh){
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          createButton("Otkaži", 
-          () async { 
+          createButton("Otkaži", () async {
             bool success = await changeRouteStatus(routeId, 'cancel');
-            if (success){
+            if (success) {
               onRefresh();
             }
           }),
         ],
       );
-    default: 
+    default:
       return const Text('');
   }
 }
@@ -76,7 +68,6 @@ class RouteDetailScreen extends StatefulWidget {
 }
 
 class _RouteDetailScreenState extends State<RouteDetailScreen> {
-
   void refreshPage() {
     setState(() {});
   }
@@ -86,30 +77,87 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
     var route = widget.route;
     var start = route['start_location'];
     var end = route['end_location'];
-    var status = route['status'];
 
-    DateTime date_created = DateTime.parse(route['date_created']).toLocal();
-    String formatted_date = DateFormat('dd.MM.yyyy HH:mm').format(date_created);
+    DateTime dateCreated = DateTime.parse(route['date_created']).toLocal();
+    String formattedDate = DateFormat('HH:mm dd.MM.').format(dateCreated);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Ruta"), 
-        backgroundColor: const Color.fromARGB(219, 251, 236, 95),
+        title: const Text("Ruta"),
+        backgroundColor: Colors.white30,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Od: $start"),
-          Text("Do: $end"),
-          Text("Vreme kreiranja rute: $formatted_date"),
-          getButtonsBasedOnRole(
-            route['id'],
-            refreshPage,
+          Container( // for info before buttons
+            padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 10,
+              ),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+            ),
+            child: Column(
+              children: [
+              _routeInfoRow(icon: Icons.arrow_upward, label: 'Od', value: start),
+              _getDivider(),
+              _routeInfoRow(icon: Icons.location_on_outlined, label: 'Do', value: end),
+              _getDivider(),
+              _routeInfoRow(icon: Icons.calendar_today_outlined, label: 'Kreirana u', value: formattedDate),
+              ],
+            ),
           ),
-          const Text("Statusi rute:"),
-          Expanded(
-            child: StatusHistory(routeId: route['id']),
+
+          Container(
+            margin: const EdgeInsets.all(16.0), // Adds 16px margin on all sides
+            child: getButtonsBasedOnRole(
+              route['id'],
+              refreshPage,
+            ),
           ),
+
+          Padding(
+              padding: const EdgeInsets.all(20),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Text(
+                      "Statusi rute:",
+                      style: TextStyle(
+                        fontSize:15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    ),
+                    const SizedBox(height: 12),
+                    StatusHistory(routeId: route['id']),
+                  ],
+                ),
+              ),
+            ), 
+          
         ],
       ),
     );
@@ -127,21 +175,19 @@ class StatusHistory extends StatefulWidget {
   }
 }
 
-
 class _StatusHistory extends State<StatusHistory> {
-
-  String getText(status, time, user){
+  String getText(status, user) {
     switch (status) {
       case 1:
-        return "$time Korisnik $user je napravio novu rutu.";
+        return "Korisnik $user je napravio novu rutu.";
       case 2:
-        return "$time Korisnik $user je prihvatio rutu.";
+        return "Korisnik $user je prihvatio rutu.";
       case 3:
-        return "$time Korisnik $user je preuzeo paket.";
+        return "Korisnik $user je preuzeo paket.";
       case 4:
-        return "$time Korisnik $user je zavrsio voznju.";
+        return "Korisnik $user je zavrsio voznju.";
       case 5:
-        return "$time Korisnik $user je otkazao voznju.";
+        return "Korisnik $user je otkazao voznju.";
       default:
         return "Nepoznat status";
     }
@@ -155,24 +201,155 @@ class _StatusHistory extends State<StatusHistory> {
         if (!snapshot.hasData) {
           return const Text('Nema statusa za ovu rutu.');
         }
-  
+
         final history = snapshot.data as List;
-  
+
         return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: history.length,
           itemBuilder: (context, index) {
             final item = history[index];
-            
-            DateTime time_of_creation = DateTime.parse(item['changed_at']).toLocal();
-            String formatted_creation = DateFormat('HH:mm').format(time_of_creation);
 
-            return ListTile(
-              title: Text(getText(item['status'], formatted_creation, item['changed_by'])),
-              //subtitle: Text(formatted_creation),
-            );
+            DateTime timeOfCreation =
+                DateTime.parse(item['changed_at']).toLocal();
+            String formattedCreation =
+                DateFormat('HH:mm').format(timeOfCreation);
+
+            return _statusItem(
+              time: formattedCreation, 
+              text: getText(item['status'], item['changed_by']),
+              isLast: index == history.length - 1);
           },
         );
       },
     );
   }
 }
+
+Widget _routeInfoRow({
+  required IconData icon,
+  required String label,
+  required String value,
+}) {
+  return Row(
+    children: [
+      Container(
+        width: 30,
+        height: 30,
+        decoration: 
+          BoxDecoration(
+            color: Colors.yellow.withValues(alpha: 0.5),
+            shape: BoxShape.circle,
+          ),
+        child: Icon(
+          icon,
+          color: Colors.black,
+        ),
+      ),
+      const SizedBox(width: 10),
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.black54,
+            ),  
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+Widget _getDivider(){
+  return const Divider(
+    color: Colors.grey,
+    thickness: 1,
+    indent: 10,
+    endIndent: 10,
+  );
+}
+
+
+Widget _statusItem({
+    required String time,
+    required String text,
+    required bool isLast,
+  }) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          // Timeline
+          SizedBox(
+            width: 30,
+            child: Column(
+              children: [
+                // Yellow dot
+                Container(
+                  width: 15,
+                  height: 15,
+                  decoration: const BoxDecoration(
+                    color: Colors.yellow,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+
+                // Line connecting statuses
+                if (!isLast)
+                  Expanded(
+                    child: Container(
+                      width: 2,
+                      color: Colors.black12,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          // Status content
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                bottom: 20,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  Text(
+                    time,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  Text(
+                    text,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
