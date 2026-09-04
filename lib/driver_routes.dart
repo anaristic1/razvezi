@@ -54,6 +54,8 @@ class _DriverRoutesScreen extends BaseRoutesState<DriverRoutesScreen> {
                           var route = routes[index];
                           var start = "${route['start_location']}";
                           var end = "${route['end_location']}";
+                          var timing = "${route['eta']}";
+                          var numberOfBoxes = "${route['number_of_boxes']}";
       
                           return Dismissible(
                             key: Key("$start-$end"),
@@ -72,7 +74,16 @@ class _DriverRoutesScreen extends BaseRoutesState<DriverRoutesScreen> {
                             },
                             child: Card(
                               color: const Color.fromARGB(255, 244, 222, 24),
-                              child: ListTile(title: Text("$start - $end")),
+                              child: ListTile(
+                                title: Text("$start - $end"),
+                                subtitle: Text(timing),
+                                trailing: Text(
+                                  numberOfBoxes,
+                                  style: const TextStyle(
+                                    fontSize: 20
+                                  ),
+                                ),
+                                ),
                             )
                           );
                         },
@@ -123,6 +134,8 @@ class RoutesList extends StatelessWidget {
         var route = routes[index];
         var start = "${route['start_location']}";
         var end = "${route['end_location']}";
+        var timing = "${route['eta']}";
+        var numberOfBoxes = "${route['number_of_boxes']}";
 
         return Card(
           color: switch (route['status']) {
@@ -135,6 +148,13 @@ class RoutesList extends StatelessWidget {
           },
           child: ListTile(
             title: Text("$start - $end"),
+            subtitle: Text(timing),
+            trailing: Text(
+              numberOfBoxes,
+              style: const TextStyle(
+                fontSize: 20
+              ),
+            ),
             onTap: () {
               Navigator.push(
                 context,
