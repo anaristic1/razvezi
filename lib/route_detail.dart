@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:razvezi/get_data.dart';
 import 'package:razvezi/cookie.dart';
+import 'package:razvezi/utility.dart';
 
 // driver ima dva dugmeta
 // admin ima otkazi porudzbinu, mozda zovi vozaca?
@@ -20,35 +21,45 @@ Widget createButton(String text, void Function() func) {
   );
 }
 
-Widget getButtonsBasedOnRole(routeId, VoidCallback onRefresh) {
+Widget getButtonsBasedOnRole(routeId, routeStatus, StateSetter setState) {
   switch (Session.role) {
     case "driver":
+      var shouldTakeProductBtn = routeStatus == 1 || routeStatus == 2;
+      var shouldFinishBtn = routeStatus == 3;
+
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          if (shouldTakeProductBtn) ...[
           createButton("Preuzeta roba", () async {
             bool success = await changeRouteStatus(routeId, 'take_product');
             if (success) {
-              onRefresh();
+              setState(() {
+                shouldTakeProductBtn = false;
+                shouldFinishBtn = true;
+              });
             } else {}
-          }),
+          })],
           const SizedBox(width: 10),
+          if (shouldFinishBtn) ...[
           createButton("Zavrseno", () async {
             bool success = await changeRouteStatus(routeId, 'finish');
             if (success) {
-              onRefresh();
+              setState(() {
+                shouldFinishBtn = false;
+              });
             } else {}
-          }),
+          })],
         ],
       );
-    case "dispatcher":
+    case "store":
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           createButton("Otkaži", () async {
             bool success = await changeRouteStatus(routeId, 'cancel');
             if (success) {
-              onRefresh();
+              setState(() {});
             }
           }),
         ],
@@ -68,8 +79,79 @@ class RouteDetailScreen extends StatefulWidget {
 }
 
 class _RouteDetailScreenState extends State<RouteDetailScreen> {
-  void refreshPage() {
-    setState(() {});
+
+  late int routeStatus;
+  late int routeId;
+
+  @override
+  void initState() {
+    super.initState();
+    routeStatus = widget.route['status'];
+    routeId = widget.route['id'];
+  }
+
+  Widget getButtons(){
+    switch (Session.role) {
+      case "driver":
+        return buildButtonsForDrivers();
+      case "store":
+        return buildButtonsForStore();
+      default:
+        return const Text('');
+    }
+  }
+
+  Widget buildButtonsForDrivers(){
+    if (routeStatus==2){ //Prihvacen 
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          createButton("Preuzeta roba", () async {
+            bool success = await changeRouteStatus(routeId, 'take_product');
+            if (success) {
+              setState(() {
+                routeStatus = 3;
+              });
+            }
+          }),
+        ],
+      );
+    }
+    if (routeStatus==3){ // Preuzeta roba
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children:[
+          createButton("Zavrseno", () async {
+            bool success = await changeRouteStatus(routeId, 'finish');
+            if (success) {
+              setState(() {
+                routeStatus = 4;
+              });
+            }
+          }),
+        ],
+      );
+    }
+    return const Text('');
+  }
+
+  Widget buildButtonsForStore(){
+    if (routeStatus==1 || routeStatus==2){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          createButton("Otkaži", () async {
+            bool success = await changeRouteStatus(routeId, 'cancel');
+            if (success) {
+              setState(() {});
+              routeStatus = 5;
+            }
+          }),
+        ],
+      );
+    }else{
+      return const Text('');
+    }
   }
 
   @override
@@ -94,17 +176,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                 horizontal: 20,
                 vertical: 10,
               ),
-            decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-            ),
+            decoration: getBoxDecoration(),
             child: Column(
               children: [
               _routeInfoRow(icon: Icons.arrow_upward, label: 'Od', value: start),
@@ -118,26 +190,13 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
 
           Container(
             margin: const EdgeInsets.all(16.0), // Adds 16px margin on all sides
-            child: getButtonsBasedOnRole(
-              route['id'],
-              refreshPage,
-            ),
+            child: getButtons(),
           ),
 
           Padding(
               padding: const EdgeInsets.all(20),
               child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
+                decoration: getBoxDecoration(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

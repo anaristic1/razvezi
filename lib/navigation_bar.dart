@@ -5,6 +5,7 @@ import 'package:razvezi/account.dart';
 import 'package:razvezi/driver_routes.dart';
 import 'package:razvezi/user_routes.dart';
 import 'package:razvezi/storage.dart';
+import 'package:razvezi/todays_rides.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -23,7 +24,7 @@ class _MainScreenState extends State<MainScreen> {
 
     pages = [
     routeScreenForRole(),
-    const Text("Two"),
+    const UserRoutesToday(),
     const AccountPage(),
   ];
     
@@ -48,8 +49,8 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Početna',
           ),
           NavigationDestination(
-            icon: Icon(Icons.notifications_sharp), //Badge(child: Icon(Icons.notifications_sharp)),
-            label: 'Notifications',
+            icon: Icon(Icons.directions_car),
+            label: 'Današnje rute',
           ),
           NavigationDestination(
             icon: Icon(Icons.account_circle),
