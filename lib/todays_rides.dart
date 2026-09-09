@@ -50,24 +50,13 @@ class _UserRoutesTodayScreen extends BaseRoutesState<UserRoutesToday> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
-                  decoration: getBoxDecoration(),
-                  child: Column(
-                  children: [
-                    Text("Ukupan broj vožnji: ${routes.length} "),
-                  ],
-                  ),
-                ),
                 Expanded(
                   child: routes.isEmpty 
                   ? Container()
                   : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("Kreirane rute"),
+                      Text("Današnje rute: ${routes.length}"),
                       Expanded(
                         child: RoutesList(routes: routes),
                       ),
