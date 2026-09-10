@@ -16,18 +16,57 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   late final List<Widget> pages;
+  late final List<NavigationDestination> destinations;
   int selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
 
-    pages = [
-    routeScreenForRole(),
-    const UserRoutesToday(),
-    const AccountPage(),
-  ];
+    switch (Session.role) {
+      case 'driver':
+        pages = [
+          const DriverRoutesScreen(),
+          const UserRoutesToday(),
+          const AccountPage(),
+        ];
+        destinations = const [
+          NavigationDestination(
+            selectedIcon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
+            label: 'Početna',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.directions_car),
+            label: 'Današnje rute',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.account_circle),
+            label: 'Nalog',
+          ),
+        ];    
+        break;
+      case 'store': 
+        pages = [
+          const UserRoutesScreen(),
+          const AccountPage(),
+        ];
+        destinations = const [
+          NavigationDestination(
+            selectedIcon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
+            label: 'Početna',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.account_circle),
+            label: 'Nalog',
+          ),
+        ];  
+        break;
+      default:
+        throw Exception('Unknown role: ${Session.role}');
     
+    }    
   }
 
   @override
@@ -42,28 +81,8 @@ class _MainScreenState extends State<MainScreen> {
         },
         indicatorColor: AppColors.primaryColor,
         selectedIndex: selectedIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined),
-            label: 'Početna',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.directions_car),
-            label: 'Današnje rute',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.account_circle),
-            label: 'Nalog',
-          ),
-        ],
+        destinations: destinations,
       ),
     );
   }
 }
-
-Widget routeScreenForRole() => switch (Session.role) {
-  'driver' => const DriverRoutesScreen(),
-  'store' => const UserRoutesScreen(),
-  _ => throw Exception('Unknown role: ${Session.role}'),
-};
