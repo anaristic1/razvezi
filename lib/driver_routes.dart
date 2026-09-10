@@ -73,7 +73,7 @@ class _DriverRoutesScreen extends BaseRoutesState<DriverRoutesScreen> {
                               return false;
                             },
                             child: Card(
-                              color: const Color.fromARGB(255, 244, 222, 24),
+                              color: const Color.fromARGB(255, 238, 215, 105),
                               child: ListTile(
                                 title: Text("$start - $end"),
                                 subtitle: Text(timing),
@@ -139,12 +139,12 @@ class RoutesList extends StatelessWidget {
 
         return Card(
           color: switch (route['status']) {
-            1 => const Color.fromARGB(225, 200, 200, 200), // Nov
-            2 => const Color.fromARGB(225, 95, 245, 123), //Prihvacen
-            3 => const Color.fromARGB(225, 95, 245, 123),
-            4 => const Color.fromARGB(225, 95, 245, 123),
-            5 => const Color.fromARGB(224, 245, 53, 19), 
-            _ => const Color.fromARGB(225, 200, 200, 200),
+            1 => const Color.fromARGB(255, 215, 215, 215), // Nov
+            2 => const Color.fromARGB(255, 165, 225, 175), // Prihvacen
+            3 => const Color.fromARGB(255, 165, 225, 175), // Preuzeto
+            4 => const Color.fromARGB(255, 165, 225, 175), // Zavrsen
+            5 => const Color.fromARGB(255, 240, 155, 140), // Otkazan
+            _ => const Color.fromARGB(255, 215, 215, 215),
           },
           child: ListTile(
             title: Text("$start - $end"),
