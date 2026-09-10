@@ -15,6 +15,7 @@ Future<String?> downloadRoutesPDF() async {
     url,
     headers: {
       'Cookie': cookie,
+      'Referer': 'https://razvezi.com/',
     },
   );
 

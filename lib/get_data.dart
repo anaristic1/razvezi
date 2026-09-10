@@ -14,6 +14,7 @@ Future getResponse(String URL) async {
     Uri.parse(URL),
     headers:  {
       'Cookie': cookie,
+      'Referer': 'https://razvezi.com/',
     },
   );
 
@@ -47,6 +48,7 @@ Future<bool> takeRoute(int routeId, int userId) async {
       'Content-Type': 'application/json',
       'Cookie': cookie,
       'X-CSRFToken': await getCSRF(),
+      'Referer': 'https://razvezi.com/',
     },
     body: jsonEncode({
       'status': 2, //prihvacena 
@@ -57,7 +59,10 @@ Future<bool> takeRoute(int routeId, int userId) async {
     CustomLogger.info("Driver $userId takes $routeId");
     return true;
   } else {
-    CustomLogger.error("Error while trying to take route");
+    CustomLogger.error(
+      "Error while trying to take route: "
+      "${response.statusCode} ${response.body}",
+    );
     return false;
   }
 }
@@ -74,6 +79,7 @@ Future<bool> changeRouteStatus(int routeId, String path) async {
       'Content-Type': 'application/json',
       'Cookie': cookie,
       'X-CSRFToken': await getCSRF(),
+      'Referer': 'https://razvezi.com/',
     },
   );
 

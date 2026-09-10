@@ -38,6 +38,7 @@ class _NewRouteFormScreenState extends State<NewRouteFormScreen> {
           'Content-Type': 'application/json',
           'Cookie': cookie,
           'X-CSRFToken': await getCSRF(),
+          'Referer': 'https://razvezi.com/',
         },
         body: jsonEncode({
           'start_location': startLocation,
